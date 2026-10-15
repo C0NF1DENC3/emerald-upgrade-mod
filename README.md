@@ -189,6 +189,31 @@ D:\PCL 正式版 2.10.9\.minecraft\versions\1.21.1-Forge_52.1.19\mods\
 
 ## 八、已知限制
 
-- 在铁砧里同时放绿宝石和输入名字时，以强化为先（重命名会被忽略）；需要重命名时请不要在 2 号槽放绿宝石。
+- 在铁砧里同时放绿宝石和输入名字时，以强化为先（重命名会被忽略）；需要重命名时请不要在2 号槽放绿宝石。
 - 效率等附魔可超过原版上限（如效率 VI），组件系统支持任意等级，属有意为之。
 - 本模组只改铁砧计算结果，不修改原版任何配方/数值，与其他模组冲突面很小；若同时安装了其他修改铁砧的模组，以加载顺序后者的 Mixin 为准。
+
+## 九、源码与仓库
+
+- GitHub：<https://github.com/C0NF1DENC3/emerald-upgrade-mod>
+- 许可：MIT
+
+克隆与推送：
+
+```bash
+git clone https://github.com/C0NF1DENC3/emerald-upgrade-mod.git
+cd emerald-upgrade-mod
+```
+
+> **GitHub 仓库名不支持中文**：GitHub 规定仓库名仅允许 ASCII 字母/数字与 `-` `_` `.`，
+> 连续的非 ASCII 字符会被静默折叠成单个连字符，所以中文只能放在仓库描述与本文标题里。
+>
+> **Windows + 代理环境下推送失败**（`schannel: ... CRYPT_E_NO_REVOCATION_CHECK`）：
+> 证书吊销检查（CRL）请求被本地代理拦截。此时用环境变量绕过：
+>
+> ```bash
+> GIT_SSL_NO_VERIFY=1 git push origin main
+> ```
+>
+> 补充：`git config http.schannelCheckRevoke false` 在 Git 2.55 + 代理场景下对该错误无效，
+> 需用上面的环境变量或改用 SSH remote。
