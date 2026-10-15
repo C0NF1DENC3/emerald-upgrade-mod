@@ -1,0 +1,55 @@
+modLoader="javafml"
+loaderVersion="[52,53)"
+license="MIT"
+
+# 注意：本文件是构建模板，下列占位符在构建时由 build.gradle 的
+# generateModsToml 任务替换为 gradle.properties 中的实际值。
+# 请勿在此手写版本号 —— 改版本请改 gradle.properties。
+[[mods]]
+modId="%mod_id%"
+version="%mod_version%"
+displayName="%display_name%"
+authors="%authors%"
+credits='''
+绿宝石强化台的三方向专精机制借鉴 Minecraft 原版附魔台 (Enchanting Table) 的交互设计。
+本模组为独立创作，与 Mojang / Microsoft 无隶属关系。Minecraft 及相关资源版权归其所有者所有。
+'''
+description='''
+[b]Emerald Upgrade[/b] —— 为任意工具、武器、弓弩与盔甲提供绿宝石强化。
+[b]Emerald Upgrade[/b] — Adds emerald-based upgrading to any tool, weapon, bow, crossbow and armour.
+
+[金]铁砧强化 / Anvil Upgrading[/b]
+将「物品 + 绿宝石」放入铁砧即可逐级强化：1 个绿宝石 = 1 级，上限 20 级。
+Put an item plus emeralds in an anvil to upgrade it: 1 emerald = 1 level, max 20 levels.
+强化前会在结果物品的说明 (lore) 里逐条列出将要发生的全部属性变化。
+The result item lists every upcoming stat change in its lore before you take it.
+取出后仅保留永久的「绿宝石强化 +N」标识，并完全修复物品。
+After taking it, only the permanent "Emerald Upgrade +N" tag remains, and the item is fully repaired.
+原版铁砧的修理、合并、重命名机制完全保留。
+Vanilla anvil repairing, combining and renaming are fully preserved.
+
+[金]绿宝石强化台 / Emerald Upgrade Table[/b]
+借鉴附魔台：放入物品与绿宝石后，从三个各有不同的专精方向中三选一。
+Inspired by the enchanting table: place an item and emeralds, then pick one of three specialisations.
+悬停按钮可查看完整效果预览，点击后由服务端权威校验并执行。
+Hover a button for the full preview; the server validates and applies it.
+
+[b]适用版本 / Requirements[/b]
+Minecraft %minecraft_version% + Forge %forge_version% (Forge 52.x)
+本模组仅在上述版本组合下经过测试，其他版本可能无法加载或出现异常。
+Tested only on the combination above; other versions may fail to load or misbehave.
+'''
+
+[[dependencies.%mod_id%]]
+    modId="forge"
+    mandatory=true
+    versionRange="[52,53)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.%mod_id%]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.21.1,1.21.2)"
+    ordering="NONE"
+    side="BOTH"

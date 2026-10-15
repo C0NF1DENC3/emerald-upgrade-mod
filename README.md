@@ -1,10 +1,30 @@
-# 绿宝石强化（Emerald Upgrade）
+<div align="center">
+
+# 绿宝石强化 · Emerald Upgrade
+
+**Minecraft 1.21.1 · Forge 52.x · Java 21**
+
+[English](#english-readme) · [中文](#中文说明)
+
+</div>
+
+---
+
+# 中文说明
 
 一个 **Minecraft Forge 1.21.1** 模组：在不破坏原版铁砧机制的前提下，引入**绿宝石升级机制**——任何工具/武器/弓弩/盔甲都可以用绿宝石强化，并且**每次升级前都会在游戏内清楚展示即将发生的变化**。同时新增「绿宝石强化台」，借鉴附魔台机制提供**三个不同的专精方向**供玩家选择。
 
-- 目标版本：Minecraft **1.21.1** / Forge **52.x**（如 52.1.19）
-- ModID：`emeraldupgrade`
-- Java：21（Forge 1.21.1 要求）
+| 项目 | 内容 |
+|---|---|
+| **适用 Minecraft 版本** | **1.21.1**（仅此版本，不兼容 1.21 / 1.21.2+） |
+| **适用加载器** | **Forge 52.x**（如 52.1.19）。不适用于 NeoForge 或 Fabric |
+| **Java 版本** | **Java 21** |
+| **ModID** | `emeraldupgrade` |
+| **模组版本** | 1.0.0 |
+| **许可证** | MIT |
+
+> ⚠️ **务必确认版本**：本模组的 Mixin 直接作用于 Minecraft 内部类，加载器版本或游戏版本
+> 不匹配时会**启动失败**，而不是降级运行。下方安装步骤会再次确认。
 
 ---
 
@@ -80,8 +100,8 @@
 
 ```
 EmeraldUpgrade/
-├── build.gradle / settings.gradle / gradle.properties   # ForgeGradle 6 构建脚本
-├── gradle/wrapper/gradle-wrapper.properties             # Gradle 8.8
+├── build.gradle / settings.gradle / gradle.properties   # 构建脚本；版本号唯一来源是 gradle.properties
+├── gradlew / gradlew.bat / gradle/wrapper/               # Gradle 8.8 Wrapper（含腾讯云镜像源）
 └── src/main/
     ├── java/com/emeraldupgrade/
     │   ├── EmeraldUpgrade.java                  # 主类：注册方块/物品/方块实体/菜单
@@ -94,20 +114,26 @@ EmeraldUpgrade/
     │   ├── block/…BlockEntity.java              # 强化台方块与方块实体（Container + MenuProvider）
     │   ├── container/EmeraldUpgradeMenu.java    # 菜单：槽位、快捷移动、方向选择服务端校验
     │   ├── client/EmeraldUpgradeTableScreen.java# 界面：三个方向按钮 + 悬停说明
-    │   └── mixin/AnvilMenuMixin.java            # 铁砧拦截（createResult / onTake）
-    └── resources/
-        ├── META-INF/mods.toml
-        ├── emeraldupgrade.mixins.json
-        ├── assets/emeraldupgrade/               # 模型、方块状态、语言(中/英)、贴图
-        └── data/emeraldupgrade/                 # 合成配方、战利品表
+    │   └── mixin/
+    │       ├── AnvilMenuMixin.java              # 铁砧拦截（createResult / onTake）
+    │       └── ItemCombinerMenuAccessor.java    # 访问父类继承的 player 字段（@Shadow 做不到）
+    ├── resources/
+    │   ├── emeraldupgrade.mixins.json
+    │   ├── assets/emeraldupgrade/               # 模型、方块状态、语言(中/英)、贴图
+    │   └── data/emeraldupgrade/                 # 合成配方、战利品表
+    └── templates/mods.toml.in                   # mods.toml 模板（构建时注入版本号）
 tools/generate_textures.py                        # 贴图生成脚本（纯标准库，可改配色后重跑）
 ```
+
+> `mods.toml` **不在 `resources/` 里**：它由 `build.gradle` 的 `generateModsToml` 任务从
+> `src/main/templates/mods.toml.in` 生成，版本号统一取自 `gradle.properties`，
+> 这样升级版本只需改一处，不会出现「jar 名更新了、游戏里显示的版本还是旧的」这种不一致。
 
 ---
 
 ## 三、环境要求与构建
 
-**要求**：JDK **21**（Forge 1.21.1 需要）、IntelliJ IDEA（推荐）或 Eclipse。
+**要求**：JDK **21**（Forge 1.21.1 需要）、IntelliJ IDEA（推荐）或 Eclipse。无需自行安装 Gradle——仓库已包含 Wrapper。
 
 ```bash
 # 1. 生成 IDE 运行配置（首次必须）
@@ -120,13 +146,22 @@ tools/generate_textures.py                        # 贴图生成脚本（纯标�
 ./gradlew build
 ```
 
-构建产物在 `build/libs/emeraldupgrade-mc1.21.1-1.0.0.jar`。
+构建产物在 `build/libs/emeraldupgrade-mc1.21.1-1.0.0.jar`（命名格式：`<modid>-mc<MC版本>-<模组版本>.jar`）。
 
-> **国内网络提示**：Gradle 下载慢的话，可把 `gradle/wrapper/gradle-wrapper.properties` 里的
-> `distributionUrl` 换成腾讯云镜像 `https://mirrors.cloud.tencent.com/gradle/gradle-8.8-bin.zip`；
+> **版本号只改一处**：所有版本信息集中在 `gradle.properties` 的
+> `minecraft_version` / `forge_version` / `mod_version`。改这里，jar 文件名、
+> 清单、`mods.toml` 与游戏内显示的版本会同步更新——不会出现「文件名是新版本、
+> 游戏里却显示旧版本」这种误导。
+>
+> **国内网络提示**：Wrapper 默认已指向腾讯云镜像
+> （`https://mirrors.cloud.tencent.com/gradle/gradle-8.8-bin.zip`）；
 > Maven 依赖可在 `build.gradle` 的 `repositories` 中加入阿里云镜像。
 
 ## 四、安装到游戏
+
+**先确认版本组合**：本模组只支持 **Minecraft 1.21.1 + Forge 52.x + Java 21**。
+因为 Mixin 直接修改 Minecraft 内部类，版本不匹配会**启动失败**而不是降级运行。
+如果你的整合包是 1.21、1.21.2+ 或 NeoForge/Fabric，这个模组装不上。
 
 把构建出的 jar（`build/libs/emeraldupgrade-mc1.21.1-1.0.0.jar`）复制到 `.minecraft` 的 `mods` 文件夹。
 
@@ -138,7 +173,10 @@ D:\PCL 正式版 2.10.9\.minecraft\versions\1.21.1-Forge_52.1.19\mods\
 
 （该 jar 已于 2026-10-14 由我构建并复制到上述目录；同时也在根目录 `.minecraft\mods\` 放了一份，关闭版本隔离时同样生效。两个位置只会有一个被读取，不会重复加载。）
 
-进入游戏后：创造模式物品栏 →「功能方块」页可以找到「绿宝石强化台」；铁砧强化无需任何新物品，直接就能用。如果启动器里看不到模组，检查是否放对了上面这个带 `versions\...` 的目录。
+**安装成功的判断依据**：进入游戏 → 打开模组列表 → 应看到 `Emerald Upgrade (MC 1.21.1)`。
+若列表里没有，说明 jar 没放对上面那个带 `versions\...` 的目录。
+
+功能位置：创造模式物品栏 →「功能方块」页 →「绿宝石强化台」；铁砧强化无需任何新物品，直接就能用。
 
 ---
 
@@ -234,3 +272,220 @@ gradlew.bat build      # Windows CMD / PowerShell
 >
 > 补充：`git config http.schannelCheckRevoke false` 在 Git 2.55 + 代理场景下对该错误无效，
 > 需用上面的环境变量或改用 SSH remote。
+
+---
+---
+
+<a id="english-readme"></a>
+
+# English README
+
+<div align="center">
+
+**Minecraft 1.21.1 · Forge 52.x · Java 21**
+
+[中文](#中文说明) · [English](#english-readme)
+
+</div>
+
+A **Minecraft Forge 1.21.1** mod that adds **emerald-based upgrading** without breaking vanilla
+anvil mechanics — any tool, weapon, bow, crossbow or piece of armour can be upgraded with emeralds,
+and **every upgrade shows you exactly what will change before you commit**. It also adds an
+**Emerald Upgrade Table**, modelled on the enchanting table, offering **three different
+specialisations** to choose from.
+
+| | |
+|---|---|
+| **Minecraft version** | **1.21.1** only (not compatible with 1.21 or 1.21.2+) |
+| **Mod loader** | **Forge 52.x** (e.g. 52.1.19). Not for NeoForge or Fabric |
+| **Java version** | **Java 21** |
+| **Mod ID** | `emeraldupgrade` |
+| **Mod version** | 1.0.0 |
+| **License** | MIT |
+
+> ⚠️ **Check your version first.** This mod uses Mixins against Minecraft internals, so a
+> mismatched game or loader version causes a **launch failure** rather than degraded behaviour.
+> The installation steps below repeat this check.
+
+---
+
+## 1. Gameplay mechanics
+
+### 1.1 Anvil upgrading
+
+Place the following in an anvil:
+
+```
+[Slot 1: any upgradable item]  +  [Slot 2: emeralds x N]  →  [Result: upgraded item]
+```
+
+- Every **1 emerald = 1 upgrade level**. Put N emeralds in to gain N levels at once (never above the cap).
+- The result item's **lore lists every single change that is about to happen**, e.g. a diamond
+  sword upgraded by 3 levels:
+
+  ```
+  即将进行的强化:
+    攻击力 +3 (9 → 12)
+    耐久上限 +75 (1561 → 1636)
+    升级后物品将完全修复
+    消耗绿宝石: 3
+    强化等级: 0 → 3
+  ```
+
+- Take the item out and the preview lines disappear — only the permanent green
+  **“Emerald Upgrade +N”** tag remains, and the item is **fully repaired**.
+- **No experience levels are consumed**; emeralds are the only cost.
+- **Vanilla anvil mechanics are fully preserved.** As long as slot 2 does *not* contain emeralds,
+  repairing, combining and renaming behave exactly as in vanilla Minecraft.
+
+### 1.2 Emerald Upgrade Table
+
+Crafted with **4 obsidian + 4 emeralds + 1 book**.
+
+Right-click it to open an enchanting-table-style GUI. Put emeralds in the left slot and your item
+in the middle slot, and **three buttons** appear on the right — one per specialisation. Hover any
+button to see the full preview of what it does; click to apply.
+
+The three directions are intentionally different in character, so the choice matters. Example for a
+diamond sword (costs in parentheses):
+
+| Direction | Effect per level | Character |
+|---|---|---|
+| 破甲 Sundering | +2 attack damage (3 emeralds) | Aggressive |
+| 坚韧 Fortitude | +60 max durability (2 emeralds) | Tanky |
+| 王者 Sovereign | +1 attack, +30 durability (4 emeralds) | Balanced |
+
+Standard anvil upgrading — per level, up to **20 levels** total (the anvil and the table share
+one counter):
+
+| Item type | Per-level effect |
+|---|---|
+| Sword, trident, mace | +1 attack damage, +25 max durability |
+| Axe | +1 attack damage, +20 durability, +1 efficiency |
+| Pickaxe, shovel, hoe, shears | +25 durability, +1 efficiency |
+| Bow | +25 durability, +1 Power |
+| Crossbow | +25 durability, +1 Quick Charge |
+| Helmet, chestplate, leggings, boots | +1 armour, +10 durability |
+| Other damageable items (shield, elytra, fishing rod…) | +40 durability |
+
+Every upgrade fully repairs the item.
+
+## 2. Installation
+
+You need **exactly** the right combination:
+
+1. Install **Minecraft Forge 52.x** for **Minecraft 1.21.1** (e.g. 52.1.19).
+   Get it from the [official Forge downloads page](https://files.minecraftforge.net/).
+2. Download the `.jar` from the [Releases page](https://github.com/C0NF1DENC3/emerald-upgrade-mod/releases)
+   (or build it yourself with `./gradlew build` — see below).
+3. Copy it into your profile's `mods` folder.
+   - Standard: `.minecraft/mods/`
+   - If your launcher isolates versions (e.g. MultiMC, PCL, HMCL with version isolation):
+     `.minecraft/versions/1.21.1-Forge_52.1.19/mods/`
+4. Launch the **Forge 52.x** profile.
+
+The mod shows up in **Mods → Mod List** as `Emerald Upgrade (MC 1.21.1)`.
+
+### Verifying the install
+
+- **In-game**: open the mod list; the entry must read `Emerald Upgrade (MC 1.21.1)`.
+- **Server**: the same line appears in the console on startup.
+- **If Minecraft crashes on launch** with a mixin error, your loader version is wrong —
+  check that you are running Forge 52.x, not NeoForge and not a different Minecraft version.
+
+## 3. Building from source
+
+Requires **JDK 21**. The repository includes the Gradle Wrapper, so you do **not** need to install
+Gradle yourself.
+
+```bash
+git clone https://github.com/C0NF1DENC3/emerald-upgrade-mod.git
+cd emerald-upgrade-mod
+./gradlew build        # Linux / macOS / Git Bash
+gradlew.bat build      # Windows CMD / PowerShell
+```
+
+Output: `build/libs/emeraldupgrade-mc1.21.1-1.0.0.jar`
+
+Other useful tasks:
+
+```bash
+./gradlew runClient            # launch a dev client with the mod loaded
+./gradlew genIntellijRuns      # generate IDE run configurations
+```
+
+To upgrade to a different Minecraft version, edit **only** `gradle.properties`
+(`minecraft_version`, `forge_version`) — the jar name, manifest and in-game version metadata are
+all derived from it.
+
+> **Gradle mirror**: `gradle/wrapper/gradle-wrapper.properties` points at a Chinese mirror
+> (`mirrors.cloud.tencent.com/gradle`) because `services.gradle.org` is unreachable from the
+> network this was developed on. To use the official URL instead:
+>
+> ```properties
+> distributionUrl=https\://services.gradle.org/distributions/gradle-8.8-bin.zip
+> ```
+
+## 4. Technical notes
+
+1. **Mixin on the anvil.** `AnvilMenuMixin` injects at the head of `AnvilMenu#createResult` and
+   cancels it when the second slot holds emeralds. Anything else falls through to vanilla logic.
+   Two things worth knowing if you extend this:
+   - `@Shadow` **cannot** shadow an inherited field. `player` lives on `ItemCombinerMenu`, not
+     `AnvilMenu`, so shadowing it throws `InvalidMixinException` at launch. Use an
+     `@Accessor` mixin (`ItemCombinerMenuAccessor`) instead.
+   - ForgeGradle 6 removed the `mixin {}` extension block from older MDKs, and Forge 1.20.6+
+     requires `MixinConfigs` in the jar manifest or the mixin is silently never applied.
+   - **The dev environment does not register mixins for classpath mods** (no jar manifest), so a
+     dev run cannot validate mixin changes. Always verify with a production jar.
+2. **Vanilla data components.** Upgrades are written to Minecraft 1.21.1's own components
+   (`attribute_modifiers`, `max_damage`, `enchantments`); the level counter and preview live in
+   `custom_data`. This means `/give` and NBT viewers see everything correctly.
+3. **No custom network packets.** The table GUI reuses vanilla
+   `gameMode.handleInventoryButtonClick(containerId, buttonId)` → server-side
+   `AbstractContainerMenu#clickMenuButton`; slot contents sync through the normal Slot mechanism.
+   Both sides derive the three options from the same `UpgradeOptions` table, and the server
+   re-validates every click.
+4. **Procedural textures.** `tools/generate_textures.py` writes the PNGs using only the Python
+   standard library — no image library required. Edit the colour constants and re-run it.
+
+## 5. Tuning values
+
+| What to change | Where |
+|---|---|
+| Max upgrade level (default 20) | `UpgradeManager.MAX_LEVEL` |
+| Per-level anvil numbers | `UpgradeCategory` enum constructor args |
+| The three table directions' effects/costs | `UpgradeOptions` static block |
+| Emerald → XP cost | `this.cost.set(0)` in `AnvilMenuMixin` |
+| Crafting recipe | `data/emeraldupgrade/recipes/emerald_upgrade_table.json` |
+| GUI colours / slot positions | `tools/generate_textures.py` and the constants in `EmeraldUpgradeMenu` |
+
+## 6. Known limitations
+
+- Renaming an item in the anvil is ignored while emeralds sit in slot 2 (upgrading takes priority).
+  Remove the emeralds first if you want to rename.
+- Efficiency and similar enchantments may exceed the vanilla cap (e.g. Efficiency VI) — the
+  component system supports arbitrary levels. This is intentional.
+- The mod only changes the anvil's *result*; it modifies no vanilla recipe or numeric value, so it
+  has a very small conflict surface. If another anvil-modifying mod is installed, whichever Mixin
+  loads last wins.
+
+## 7. Repository
+
+- GitHub: <https://github.com/C0NF1DENC3/emerald-upgrade-mod>
+- License: MIT
+
+> **On the repository name:** GitHub only allows ASCII letters, digits, `-`, `_` and `.` in
+> repository names; runs of non-ASCII characters are silently collapsed into a single hyphen.
+> The Chinese name therefore lives in the repository description and in the README title.
+>
+> **Pushing from Windows behind a proxy** fails with
+> `schannel: ... CRYPT_E_NO_REVOCATION_CHECK` because the CRL check is blocked. Work around it
+> with an environment variable:
+>
+> ```bash
+> GIT_SSL_NO_VERIFY=1 git push origin main
+> ```
+>
+> Note: `git config http.schannelCheckRevoke false` does **not** fix this on Git 2.55 behind a
+> proxy; use the variable above or switch to an SSH remote.

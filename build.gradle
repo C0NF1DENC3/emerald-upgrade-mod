@@ -7,12 +7,14 @@ plugins {
 
 version = "${mod_version}"
 group = "${mod_group}"
-base { archivesName = "${mod_id}-mc1.21.1" }
+// 产物名遵循 CurseForge/Modrinth 惯例：<modid>-mc<MC版本>-<模组版本>.jar
+// 例：emeraldupgrade-mc1.21.1-1.0.0.jar
+base { archivesName = "${mod_id}-mc${minecraft_version}" }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 minecraft {
-    mappings channel: 'official', version: '1.21.1'
+    mappings channel: 'official', version: "${minecraft_version}"
     copyIdeResources = true
 
     runs {
@@ -43,7 +45,7 @@ repositories {
 
 dependencies {
     // ForgeGradle 6 要求显式声明 minecraft 依赖（Forge 用户开发依赖）
-    minecraft 'net.minecraftforge:forge:1.21.1-52.1.19'
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     // Forge 1.21.1 生产环境使用的就是 Mojang 官方映射名（与开发环境一致），
     // 因此 Mixin 目标无需 refmap 重映射，也无需 Mixin 注解处理器。
     // ForgeGradle 6 已移除 FG3 时代的 mixin {} 扩展块。
@@ -55,11 +57,11 @@ tasks.named('jar', Jar).configure {
     manifest {
         attributes([
             'Specification-Title'   : mod_id,
-            'Specification-Vendor'  : 'WorkBuddy',
+            'Specification-Vendor'  : authors,
             'Specification-Version' : '1',
-            'Implementation-Title'  : project.name,
-            'Implementation-Version': mod_version,
-            'Implementation-Vendor' : 'WorkBuddy',
+            'Implementation-Title'  : mod_name,
+            'Implementation-Version': project.version,
+            'Implementation-Vendor' : authors,
             'MixinConfigs'          : "${mod_id}.mixins.json"
         ])
     }
@@ -67,4 +69,46 @@ tasks.named('jar', Jar).configure {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+// ---------------------------------------------------------------------------
+// mods.toml 生成
+//
+// ForgeGradle 6 不再展开 ${file.*} 占位符（旧的 MDK 模板写法已失效），
+// 而 ReplaceTokens 也无法处理 [[dependencies.<id>]] 这类方括号内的标识符。
+// 因此把 TOML 正文放在 src/main/templates/mods.toml.in，用 %token% 占位，
+// 由本任务替换 %token% 后生成到 build/generated-resources，再并入 jar。
+// 版本号的唯一来源是 gradle.properties —— 升级版本只需改那一处。
+// ---------------------------------------------------------------------------
+def tokenMap = [
+    mod_id           : mod_id,
+    mod_version      : mod_version,
+    display_name     : "${mod_name} (MC ${minecraft_version})",
+    authors          : authors,
+    minecraft_version: minecraft_version,
+    forge_version    : forge_version
+]
+
+tasks.register('generateModsToml') {
+    description = '从模板生成 mods.toml，并注入 gradle.properties 中的版本信息'
+    inputs.properties tokenMap
+    inputs.file file('src/main/templates/mods.toml.in')
+    outputs.file file("$buildDir/generated-resources/META-INF/mods.toml")
+
+    doLast {
+        def template = file('src/main/templates/mods.toml.in').getText('UTF-8')
+        def text = template
+        tokenMap.each { key, value ->
+            text = text.replace('%' + key + '%', value.toString())
+        }
+        def out = file("$buildDir/generated-resources/META-INF/mods.toml")
+        out.parentFile.mkdirs()
+        out.setText(text, 'UTF-8')
+        logger.lifecycle("Generated mods.toml -> ${out}")
+    }
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    dependsOn 'generateModsToml'
+    from("$buildDir/generated-resources")
 }
