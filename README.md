@@ -198,6 +198,10 @@ D:\PCL 正式版 2.10.9\.minecraft\versions\1.21.1-Forge_52.1.19\mods\
 - GitHub：<https://github.com/C0NF1DENC3/emerald-upgrade-mod>
 - 许可：MIT
 
+> **关于仓库名**：GitHub 规定仓库名仅允许 ASCII 字母/数字与 `-` `_` `.`，连续的非 ASCII
+> 字符会被静默折叠成单个连字符，因此「绿宝石强化模组」无法出现在仓库名里。
+> 中文信息放在仓库描述与本文标题中。
+
 克隆与推送：
 
 ```bash
@@ -205,8 +209,21 @@ git clone https://github.com/C0NF1DENC3/emerald-upgrade-mod.git
 cd emerald-upgrade-mod
 ```
 
-> **GitHub 仓库名不支持中文**：GitHub 规定仓库名仅允许 ASCII 字母/数字与 `-` `_` `.`，
-> 连续的非 ASCII 字符会被静默折叠成单个连字符，所以中文只能放在仓库描述与本文标题里。
+构建（仓库已包含 Gradle Wrapper，**无需自行安装 Gradle**，只需本机有 JDK 21）：
+
+```bash
+./gradlew build        # Linux / macOS / Git Bash
+gradlew.bat build      # Windows CMD / PowerShell
+```
+
+> **Wrapper 使用国内镜像**：`gradle/wrapper/gradle-wrapper.properties` 里的 `distributionUrl`
+> 指向腾讯云镜像（`mirrors.cloud.tencent.com/gradle`）。原因：本网络环境下
+> `services.gradle.org` 的连通性探测会失败，导致 `gradle wrapper` 任务报
+> "Test of distribution url failed"。若你在海外或该地址不可用，把它改回官方地址即可：
+>
+> ```properties
+> distributionUrl=https\://services.gradle.org/distributions/gradle-8.8-bin.zip
+> ```
 >
 > **Windows + 代理环境下推送失败**（`schannel: ... CRYPT_E_NO_REVOCATION_CHECK`）：
 > 证书吊销检查（CRL）请求被本地代理拦截。此时用环境变量绕过：
