@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "emeraldupgrade:block/emerald_upgrade_table"
+    }
+  }
+}

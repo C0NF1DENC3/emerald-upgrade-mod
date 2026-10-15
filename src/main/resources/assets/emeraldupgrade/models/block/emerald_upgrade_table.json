@@ -1,0 +1,45 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "0": "emeraldupgrade:block/emerald_upgrade_table",
+    "particle": "emeraldupgrade:block/emerald_upgrade_table"
+  },
+  "elements": [
+    {
+      "from": [1, 0, 1],
+      "to": [15, 4, 15],
+      "faces": {
+        "down":  { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "up":    { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "north": { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "south": { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "east":  { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "west":  { "uv": [0, 0, 16, 16], "texture": "#0" }
+      }
+    },
+    {
+      "from": [4, 4, 4],
+      "to": [12, 12, 12],
+      "faces": {
+        "down":  { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "up":    { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "north": { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "south": { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "east":  { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "west":  { "uv": [0, 0, 16, 16], "texture": "#0" }
+      }
+    },
+    {
+      "from": [2, 12, 2],
+      "to": [14, 15, 14],
+      "faces": {
+        "down":  { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "up":    { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "north": { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "south": { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "east":  { "uv": [0, 0, 16, 16], "texture": "#0" },
+        "west":  { "uv": [0, 0, 16, 16], "texture": "#0" }
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "com.emeraldupgrade.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AnvilMenuMixin",
+    "ItemCombinerMenuAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
